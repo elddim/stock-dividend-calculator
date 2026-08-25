@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>股息目標試算器</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>我的股息計畫</title>
 
   <style>
     * {
@@ -13,29 +14,29 @@
     body {
       margin: 0;
       font-family: "Microsoft JhengHei", Arial, sans-serif;
-      background: linear-gradient(135deg, #eef9ff, #fff8e7);
-      color: #263746;
+      background: linear-gradient(135deg, #eef9ff, #fff9e8);
+      color: #273746;
       min-height: 100vh;
     }
 
     header {
       text-align: center;
-      padding: 40px 20px 25px;
+      padding: 45px 20px 25px;
     }
 
     header h1 {
       margin: 0;
-      font-size: 34px;
-      color: #24516b;
+      font-size: 36px;
+      color: #24546d;
     }
 
     header p {
-      color: #738491;
+      color: #71838e;
       margin-top: 10px;
     }
 
     .container {
-      width: min(1000px, 92%);
+      width: min(1050px, 92%);
       margin: auto;
       padding-bottom: 60px;
     }
@@ -45,12 +46,127 @@
       border-radius: 22px;
       padding: 26px;
       margin-bottom: 22px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.07);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.07);
     }
 
-    .card h2 {
+    h2 {
       margin-top: 0;
-      color: #315e75;
+      color: #315f76;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #d6e3e9;
+      border-radius: 12px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #65a8c5;
+      box-shadow: 0 0 0 4px rgba(101,168,197,0.1);
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 14px 22px;
+      background: #397f9f;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      background: #2e6c88;
+    }
+
+    .message {
+      display: none;
+      margin-top: 15px;
+      padding: 13px;
+      border-radius: 10px;
+    }
+
+    .loading {
+      background: #edf8ff;
+      color: #35728f;
+    }
+
+    .error {
+      background: #fff0f0;
+      color: #a94b4b;
+    }
+
+    .stock-info {
+      display: none;
+      margin-top: 20px;
+      padding: 22px;
+      background: #f6fbfd;
+      border-radius: 18px;
+    }
+
+    .stock-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .stock-name {
+      font-size: 27px;
+      font-weight: 800;
+      color: #24536b;
+    }
+
+    .stock-code {
+      color: #83939d;
+      margin-top: 5px;
+    }
+
+    .market-badge {
+      background: #e5f4fa;
+      color: #34738f;
+      padding: 7px 13px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .stock-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .stock-box {
+      background: white;
+      border-radius: 14px;
+      padding: 17px;
+      text-align: center;
+      border: 1px solid #e6eef2;
+    }
+
+    .small-title {
+      color: #758791;
+      font-size: 13px;
+    }
+
+    .big-value {
+      font-size: 21px;
+      font-weight: 800;
+      color: #28566c;
+      margin-top: 7px;
     }
 
     .grid {
@@ -68,154 +184,106 @@
     label {
       font-weight: bold;
       font-size: 14px;
+      color: #536b78;
     }
 
-    input {
-      padding: 13px;
-      border-radius: 12px;
-      border: 1px solid #d5e3ea;
-      font-size: 16px;
-      outline: none;
+    .hint {
+      font-size: 12px;
+      color: #8a99a1;
     }
 
-    input:focus {
-      border-color: #67a9c6;
-    }
-
-    button {
-      padding: 13px 20px;
-      border: none;
-      border-radius: 12px;
-      background: #397d9d;
-      color: white;
-      font-size: 16px;
+    .auto-tag {
+      color: #34856c;
       font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #2d6985;
-    }
-
-    .search-row {
-      display: flex;
-      gap: 12px;
-    }
-
-    .search-row input {
-      flex: 1;
-    }
-
-    .stock-info {
-      margin-top: 20px;
-      background: #f7fbfd;
-      border-radius: 15px;
-      padding: 20px;
-      display: none;
-    }
-
-    .stock-name {
-      font-size: 24px;
-      font-weight: bold;
-      color: #24516b;
-    }
-
-    .stock-code {
-      color: #84939c;
-      font-size: 14px;
-      margin-top: 5px;
     }
 
     .results {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 15px;
-      margin-top: 20px;
+      margin-top: 22px;
     }
 
     .result {
-      padding: 20px;
-      border-radius: 16px;
+      padding: 22px;
+      border-radius: 17px;
+      background: #f1f9fc;
       text-align: center;
-      background: #f2f9fc;
     }
 
-    .result.main {
-      background: #fff4c8;
+    .result.highlight {
+      background: linear-gradient(135deg, #fff5c9, #ffedab);
     }
 
     .result-title {
+      color: #758792;
       font-size: 13px;
-      color: #71828d;
     }
 
     .result-value {
-      font-size: 24px;
-      font-weight: bold;
       margin-top: 8px;
-      color: #24516b;
+      font-size: 26px;
+      font-weight: 800;
+      color: #28566c;
     }
 
-    .main .result-value {
-      color: #9a6b00;
+    .highlight .result-value {
+      color: #986a00;
     }
 
     .detail {
-      margin-top: 20px;
-      border: 1px solid #e3ebef;
-      border-radius: 15px;
+      margin-top: 22px;
+      border: 1px solid #e2eaee;
+      border-radius: 16px;
       padding: 18px;
     }
 
     .detail-row {
       display: flex;
       justify-content: space-between;
-      padding: 11px 0;
-      border-bottom: 1px dashed #dfe6ea;
+      gap: 20px;
+      padding: 12px 0;
+      border-bottom: 1px dashed #dde6ea;
     }
 
     .detail-row:last-child {
       border-bottom: none;
     }
 
+    .detail-row span {
+      color: #667b87;
+    }
+
     .detail-row strong {
-      color: #28566c;
+      color: #28556b;
     }
 
-    .message {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
-      display: none;
-    }
-
-    .loading {
-      background: #edf7ff;
-      color: #39718f;
-    }
-
-    .error {
-      background: #fff0f0;
-      color: #a54c4c;
+    .good {
+      color: #258064 !important;
     }
 
     .notice {
-      background: #fff8e7;
-      border-left: 5px solid #eeb94f;
-      padding: 16px;
-      border-radius: 10px;
+      padding: 18px;
+      border-radius: 13px;
+      background: #fff8e8;
+      border-left: 5px solid #efba50;
+      color: #776329;
       line-height: 1.7;
       font-size: 14px;
     }
 
     footer {
       text-align: center;
-      color: #96a5ad;
-      padding-top: 20px;
+      padding-top: 22px;
+      color: #98a6ad;
       font-size: 12px;
     }
 
-    @media (max-width: 750px) {
+    @media(max-width: 800px) {
+      .stock-grid {
+        grid-template-columns: repeat(2,1fr);
+      }
+
       .grid,
       .results {
         grid-template-columns: 1fr;
@@ -228,61 +296,150 @@
   </style>
 </head>
 
+
 <body>
 
 <header>
-  <h1>💰 股息目標試算器</h1>
-  <p>搜尋台股，設定你的殖利率與股息目標</p>
+  <h1>💰 我的股息計畫</h1>
+  <p>搜尋股票・設定殖利率・計算需要多少本金</p>
 </header>
+
 
 <div class="container">
 
-  <!-- 股票搜尋 -->
+
+  <!-- 搜尋股票 -->
+
   <section class="card">
 
-    <h2>🔍 股票搜尋</h2>
+    <h2>🔍 搜尋股票</h2>
 
     <div class="search-row">
+
       <input
         id="stockCode"
-        type="text"
-        placeholder="輸入股票代號，例如 0050、2330"
-      />
+        placeholder="輸入股票代號，例如：2330"
+      >
 
       <button onclick="searchStock()">
-        搜尋股票
+        搜尋
       </button>
+
     </div>
 
-    <div id="loading" class="message loading">
-      正在取得股票資料...
+
+    <div
+      id="loading"
+      class="message loading"
+    >
+      🔄 正在取得官方股票資料...
     </div>
 
-    <div id="error" class="message error"></div>
 
-    <div id="stockInfo" class="stock-info">
+    <div
+      id="error"
+      class="message error"
+    ></div>
 
-      <div id="stockName" class="stock-name">
-        股票名稱
+
+    <div
+      id="stockInfo"
+      class="stock-info"
+    >
+
+      <div class="stock-title">
+
+        <div>
+
+          <div
+            id="stockName"
+            class="stock-name"
+          >
+            -
+          </div>
+
+          <div
+            id="stockCodeText"
+            class="stock-code"
+          >
+            -
+          </div>
+
+        </div>
+
+        <div
+          id="market"
+          class="market-badge"
+        >
+          -
+        </div>
+
       </div>
 
-      <div id="stockCodeText" class="stock-code"></div>
 
-      <div class="detail">
+      <div class="stock-grid">
 
-        <div class="detail-row">
-          <span>市場</span>
-          <strong id="market">-</strong>
+        <div class="stock-box">
+
+          <div class="small-title">
+            最近股價
+          </div>
+
+          <div
+            id="apiPrice"
+            class="big-value"
+          >
+            -
+          </div>
+
         </div>
 
-        <div class="detail-row">
-          <span>最近股價</span>
-          <strong id="price">-</strong>
+
+        <div class="stock-box">
+
+          <div class="small-title">
+            官方殖利率
+          </div>
+
+          <div
+            id="apiYield"
+            class="big-value"
+          >
+            -
+          </div>
+
         </div>
 
-        <div class="detail-row">
-          <span>官方殖利率</span>
-          <strong id="officialYield">-</strong>
+
+        <div class="stock-box">
+
+          <div class="small-title">
+            年度每股股息
+          </div>
+
+          <div
+            id="apiDividend"
+            class="big-value"
+          >
+            -
+          </div>
+
+        </div>
+
+
+        <div class="stock-box">
+
+          <div class="small-title">
+            本益比
+          </div>
+
+          <div
+            id="apiPE"
+            class="big-value"
+          >
+            -
+          </div>
+
         </div>
 
       </div>
@@ -292,7 +449,8 @@
   </section>
 
 
-  <!-- 目標設定 -->
+  <!-- 股息目標 -->
+
   <section class="card">
 
     <h2>🎯 我的股息目標</h2>
@@ -300,35 +458,54 @@
     <div class="grid">
 
       <div class="input-group">
-        <label>每月希望領多少股息？</label>
+
+        <label>
+          每月希望收到多少股息？
+        </label>
 
         <input
           id="monthlyDividend"
           type="number"
           value="10000"
           min="0"
-        />
+        >
+
+        <div class="hint">
+          例如：希望平均每月有 10,000 元股息
+        </div>
+
       </div>
 
+
       <div class="input-group">
-        <label>我的目標殖利率 %</label>
+
+        <label>
+          我的目標殖利率 %
+        </label>
 
         <input
           id="targetYield"
           type="number"
           value="5"
-          min="0.1"
           step="0.1"
-        />
+          min="0.1"
+        >
+
+        <div class="hint">
+          例如：希望殖利率達到 5%
+        </div>
+
       </div>
 
     </div>
 
+
     <div class="results">
 
       <div class="result">
+
         <div class="result-title">
-          每月股息
+          每月股息目標
         </div>
 
         <div
@@ -337,11 +514,14 @@
         >
           $10,000
         </div>
+
       </div>
 
+
       <div class="result">
+
         <div class="result-title">
-          每年股息
+          每年股息目標
         </div>
 
         <div
@@ -350,11 +530,14 @@
         >
           $120,000
         </div>
+
       </div>
 
-      <div class="result main">
+
+      <div class="result highlight">
+
         <div class="result-title">
-          預估需要本金
+          理論需要本金
         </div>
 
         <div
@@ -363,6 +546,7 @@
         >
           $2,400,000
         </div>
+
       </div>
 
     </div>
@@ -370,33 +554,54 @@
   </section>
 
 
-  <!-- 單股試算 -->
+  <!-- 股票計算 -->
+
   <section class="card">
 
-    <h2>📊 股票配息試算</h2>
+    <h2>📊 股票股息試算</h2>
+
 
     <div class="grid">
 
       <div class="input-group">
-        <label>預估每股一年配息</label>
+
+        <label>
+          每股一年股息
+          <span class="auto-tag">
+            （API 可自動帶入）
+          </span>
+        </label>
 
         <input
           id="annualDividend"
           type="number"
-          value="3"
           step="0.01"
-        />
+          placeholder="搜尋股票後自動帶入"
+        >
+
+        <div class="hint">
+          如果 API 沒有資料，也可以自行輸入。
+        </div>
+
       </div>
 
+
       <div class="input-group">
-        <label>股票價格</label>
+
+        <label>
+          股票價格
+          <span class="auto-tag">
+            （API 自動帶入）
+          </span>
+        </label>
 
         <input
-          id="manualPrice"
+          id="stockPrice"
           type="number"
-          value="50"
           step="0.01"
-        />
+          placeholder="搜尋股票後自動帶入"
+        >
+
       </div>
 
     </div>
@@ -405,28 +610,113 @@
     <div class="detail">
 
       <div class="detail-row">
-        <span>依輸入資料計算殖利率</span>
-        <strong id="calculatedYield">6.00%</strong>
+
+        <span>
+          依股價＋股息計算殖利率
+        </span>
+
+        <strong id="calculatedYield">
+          -
+        </strong>
+
+      </div>
+
+
+      <div class="detail-row">
+
+        <span>
+          🎯 達到目標殖利率的理想價格
+        </span>
+
+        <strong
+          id="idealPrice"
+          class="good"
+        >
+          -
+        </strong>
+
+      </div>
+
+
+      <div class="detail-row">
+
+        <span>
+          達成年度股息需要
+        </span>
+
+        <strong id="sharesNeeded">
+          -
+        </strong>
+
+      </div>
+
+
+      <div class="detail-row">
+
+        <span>
+          約等於
+        </span>
+
+        <strong id="lotsNeeded">
+          -
+        </strong>
+
+      </div>
+
+
+      <div class="detail-row">
+
+        <span>
+          依目前股價需投入
+        </span>
+
+        <strong id="investmentNeeded">
+          -
+        </strong>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- 殖利率情境 -->
+
+  <section class="card">
+
+    <h2>🧮 不同殖利率需要多少本金？</h2>
+
+    <div class="detail">
+
+      <div class="detail-row">
+        <span>3% 殖利率</span>
+        <strong id="yield3">-</strong>
       </div>
 
       <div class="detail-row">
-        <span>目標殖利率對應理想股價</span>
-        <strong id="idealPrice">$60.00</strong>
+        <span>4% 殖利率</span>
+        <strong id="yield4">-</strong>
       </div>
 
       <div class="detail-row">
-        <span>達成股息目標約需股數</span>
-        <strong id="sharesNeeded">40,000 股</strong>
+        <span>5% 殖利率</span>
+        <strong id="yield5">-</strong>
       </div>
 
       <div class="detail-row">
-        <span>約需張數</span>
-        <strong id="lotsNeeded">40.00 張</strong>
+        <span>6% 殖利率</span>
+        <strong id="yield6">-</strong>
       </div>
 
       <div class="detail-row">
-        <span>以目前價格估計投入金額</span>
-        <strong id="investmentNeeded">$2,000,000</strong>
+        <span>7% 殖利率</span>
+        <strong id="yield7">-</strong>
+      </div>
+
+      <div class="detail-row">
+        <span>8% 殖利率</span>
+        <strong id="yield8">-</strong>
       </div>
 
     </div>
@@ -437,14 +727,18 @@
   <section class="notice">
 
     ⚠️ <strong>投資提醒：</strong>
-    本網站僅提供資料整理與試算，不構成投資建議。
-    股價、配息與殖利率皆可能變動，實際投資前仍需自行評估風險。
+
+    本網站提供的股價、股利與殖利率資料僅供資料整理與試算使用，
+    不構成任何投資建議。
+
+    「年度股息」應依 API 的資料年度與股利口徑判斷，
+    過去股利不代表未來仍會維持相同配息。
 
   </section>
 
 
   <footer>
-    股息目標試算器｜資料僅供參考
+    我的股息計畫｜資料僅供試算參考
   </footer>
 
 </div>
@@ -452,312 +746,526 @@
 
 <script>
 
-  const monthlyDividend =
-    document.getElementById("monthlyDividend");
+const monthlyDividend =
+  document.getElementById("monthlyDividend");
 
-  const targetYield =
-    document.getElementById("targetYield");
+const targetYield =
+  document.getElementById("targetYield");
 
-  const annualDividend =
-    document.getElementById("annualDividend");
+const annualDividend =
+  document.getElementById("annualDividend");
 
-  const manualPrice =
-    document.getElementById("manualPrice");
+const stockPrice =
+  document.getElementById("stockPrice");
 
 
-  function money(value) {
+function money(value) {
 
-    if (!isFinite(value)) {
-      return "$0";
-    }
+  const number = Number(value);
 
-    return "$" +
-      Math.round(value).toLocaleString("zh-TW");
+  if (!Number.isFinite(number)) {
+    return "$0";
+  }
+
+  return "$" +
+    Math.round(number)
+      .toLocaleString("zh-TW");
+
+}
+
+
+function calculate() {
+
+  const monthly =
+    Number(monthlyDividend.value) || 0;
+
+  const target =
+    Number(targetYield.value) || 0;
+
+  const dividend =
+    Number(annualDividend.value) || 0;
+
+  const price =
+    Number(stockPrice.value) || 0;
+
+
+  // =========================
+  // 年股息
+  // =========================
+
+  const yearly =
+    monthly * 12;
+
+
+  // =========================
+  // 理論本金
+  // =========================
+
+  let capital = 0;
+
+  if (target > 0) {
+
+    capital =
+      yearly /
+      (target / 100);
 
   }
 
 
-  function calculate() {
-
-    const monthly =
-      Number(monthlyDividend.value) || 0;
-
-    const target =
-      Number(targetYield.value) || 0;
-
-    const dividend =
-      Number(annualDividend.value) || 0;
-
-    const price =
-      Number(manualPrice.value) || 0;
+  document.getElementById(
+    "monthlyResult"
+  ).textContent =
+    money(monthly);
 
 
-    const yearly =
-      monthly * 12;
+  document.getElementById(
+    "yearlyResult"
+  ).textContent =
+    money(yearly);
 
 
-    let capital = 0;
-
-    if (target > 0) {
-
-      capital =
-        yearly /
-        (target / 100);
-
-    }
+  document.getElementById(
+    "capitalResult"
+  ).textContent =
+    money(capital);
 
 
-    document.getElementById(
-      "monthlyResult"
-    ).textContent =
-      money(monthly);
+  // =========================
+  // 股息殖利率
+  // =========================
+
+  let calculatedYield = 0;
+
+  if (
+    dividend > 0 &&
+    price > 0
+  ) {
+
+    calculatedYield =
+      dividend /
+      price *
+      100;
+
+  }
 
 
-    document.getElementById(
-      "yearlyResult"
-    ).textContent =
-      money(yearly);
+  document.getElementById(
+    "calculatedYield"
+  ).textContent =
+    calculatedYield > 0
+      ? calculatedYield.toFixed(2) + "%"
+      : "-";
 
 
-    document.getElementById(
-      "capitalResult"
-    ).textContent =
-      money(capital);
+  // =========================
+  // 理想買進價格
+  // =========================
+
+  let idealPrice = 0;
+
+  if (
+    dividend > 0 &&
+    target > 0
+  ) {
+
+    idealPrice =
+      dividend /
+      (target / 100);
+
+  }
 
 
-    // 實際殖利率
-    let calculatedYield = 0;
-
-    if (price > 0) {
-
-      calculatedYield =
-        dividend /
-        price *
-        100;
-
-    }
+  document.getElementById(
+    "idealPrice"
+  ).textContent =
+    idealPrice > 0
+      ? "$" + idealPrice.toFixed(2)
+      : "-";
 
 
-    document.getElementById(
-      "calculatedYield"
-    ).textContent =
-      calculatedYield.toFixed(2) + "%";
+  // =========================
+  // 所需股數
+  // =========================
+
+  let shares = 0;
+
+  if (dividend > 0) {
+
+    shares =
+      yearly /
+      dividend;
+
+  }
 
 
-    // 理想股價
-    let idealPrice = 0;
-
-    if (target > 0) {
-
-      idealPrice =
-        dividend /
-        (target / 100);
-
-    }
+  const roundedShares =
+    Math.ceil(shares);
 
 
-    document.getElementById(
-      "idealPrice"
-    ).textContent =
-      "$" +
-      idealPrice.toFixed(2);
+  document.getElementById(
+    "sharesNeeded"
+  ).textContent =
+    shares > 0
+      ? roundedShares.toLocaleString("zh-TW") +
+        " 股"
+      : "-";
 
 
-    // 所需股數
-    let shares = 0;
+  // =========================
+  // 張數
+  // =========================
 
-    if (dividend > 0) {
-
-      shares =
-        yearly /
-        dividend;
-
-    }
-
-
-    document.getElementById(
-      "sharesNeeded"
-    ).textContent =
-      Math.ceil(shares)
-        .toLocaleString("zh-TW") +
-      " 股";
+  document.getElementById(
+    "lotsNeeded"
+  ).textContent =
+    shares > 0
+      ? (roundedShares / 1000)
+          .toFixed(2) +
+        " 張"
+      : "-";
 
 
-    document.getElementById(
-      "lotsNeeded"
-    ).textContent =
-      (shares / 1000)
-        .toFixed(2) +
-      " 張";
+  // =========================
+  // 投入金額
+  // =========================
 
+  let investment = 0;
 
-    const investment =
-      shares *
+  if (
+    roundedShares > 0 &&
+    price > 0
+  ) {
+
+    investment =
+      roundedShares *
       price;
 
+  }
+
+
+  document.getElementById(
+    "investmentNeeded"
+  ).textContent =
+    investment > 0
+      ? money(investment)
+      : "-";
+
+
+  // =========================
+  // 不同殖利率本金比較
+  // =========================
+
+  [3,4,5,6,7,8].forEach(rate => {
+
+    const required =
+      yearly /
+      (rate / 100);
 
     document.getElementById(
-      "investmentNeeded"
+      "yield" + rate
     ).textContent =
-      money(investment);
+      money(required);
+
+  });
+
+}
+
+
+// =============================
+// 搜尋股票
+// =============================
+
+async function searchStock() {
+
+  const code =
+    document
+      .getElementById("stockCode")
+      .value
+      .trim();
+
+
+  const loading =
+    document.getElementById("loading");
+
+  const error =
+    document.getElementById("error");
+
+  const stockInfo =
+    document.getElementById("stockInfo");
+
+
+  error.style.display =
+    "none";
+
+  stockInfo.style.display =
+    "none";
+
+
+  if (!code) {
+
+    error.textContent =
+      "請先輸入股票代號";
+
+    error.style.display =
+      "block";
+
+    return;
 
   }
 
 
-  async function searchStock() {
-
-    const code =
-      document
-        .getElementById("stockCode")
-        .value
-        .trim();
+  loading.style.display =
+    "block";
 
 
-    const loading =
-      document.getElementById("loading");
+  try {
 
-    const error =
-      document.getElementById("error");
-
-    const stockInfo =
-      document.getElementById("stockInfo");
+    const response =
+      await fetch(
+        `/api/stock?code=${encodeURIComponent(code)}`
+      );
 
 
-    error.style.display = "none";
-    stockInfo.style.display = "none";
+    const data =
+      await response.json();
 
 
-    if (!code) {
+    if (!response.ok) {
 
-      error.textContent =
-        "請先輸入股票代號";
-
-      error.style.display =
-        "block";
-
-      return;
+      throw new Error(
+        data.error ||
+        "查不到這檔股票"
+      );
 
     }
 
 
-    loading.style.display =
+    // =========================
+    // 股票基本資料
+    // =========================
+
+    document.getElementById(
+      "stockName"
+    ).textContent =
+      data.name ||
+      "未知股票";
+
+
+    document.getElementById(
+      "stockCodeText"
+    ).textContent =
+      data.code ||
+      code;
+
+
+    document.getElementById(
+      "market"
+    ).textContent =
+      data.market ||
+      "-";
+
+
+    // =========================
+    // 股價
+    // =========================
+
+    if (
+      data.price !== null &&
+      data.price !== undefined
+    ) {
+
+      const price =
+        Number(data.price);
+
+      document.getElementById(
+        "apiPrice"
+      ).textContent =
+        "$" +
+        price.toFixed(2);
+
+
+      stockPrice.value =
+        price;
+
+    }
+
+    else {
+
+      document.getElementById(
+        "apiPrice"
+      ).textContent =
+        "-";
+
+    }
+
+
+    // =========================
+    // 官方殖利率
+    // =========================
+
+    if (
+      data.yield !== null &&
+      data.yield !== undefined
+    ) {
+
+      document.getElementById(
+        "apiYield"
+      ).textContent =
+        Number(data.yield)
+          .toFixed(2) +
+        "%";
+
+    }
+
+    else {
+
+      document.getElementById(
+        "apiYield"
+      ).textContent =
+        "-";
+
+    }
+
+
+    // =========================
+    // 年度股息
+    // =========================
+
+    const dividend =
+      data.annualDividend ??
+      data.dividend ??
+      null;
+
+
+    if (
+      dividend !== null &&
+      dividend !== undefined &&
+      Number(dividend) > 0
+    ) {
+
+      document.getElementById(
+        "apiDividend"
+      ).textContent =
+        "$" +
+        Number(dividend)
+          .toFixed(2);
+
+
+      // ⭐ 自動帶入試算器
+      annualDividend.value =
+        Number(dividend);
+
+    }
+
+    else {
+
+      document.getElementById(
+        "apiDividend"
+      ).textContent =
+        "暫無資料";
+
+    }
+
+
+    // =========================
+    // PE
+    // =========================
+
+    if (
+      data.pe !== null &&
+      data.pe !== undefined
+    ) {
+
+      document.getElementById(
+        "apiPE"
+      ).textContent =
+        Number(data.pe)
+          .toFixed(2);
+
+    }
+
+    else {
+
+      document.getElementById(
+        "apiPE"
+      ).textContent =
+        "-";
+
+    }
+
+
+    stockInfo.style.display =
       "block";
 
 
-    try {
-
-      const response =
-        await fetch(
-          `/api/stock?code=${encodeURIComponent(code)}`
-        );
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          "查不到這檔股票"
-        );
-
-      }
-
-
-      const data =
-        await response.json();
-
-
-      document.getElementById(
-        "stockName"
-      ).textContent =
-        data.name || "未知股票";
-
-
-      document.getElementById(
-        "stockCodeText"
-      ).textContent =
-        `${data.code || code}`;
-
-
-      document.getElementById(
-        "market"
-      ).textContent =
-        data.market || "-";
-
-
-      document.getElementById(
-        "price"
-      ).textContent =
-        data.price
-          ? `$${Number(data.price).toFixed(2)}`
-          : "-";
-
-
-      document.getElementById(
-        "officialYield"
-      ).textContent =
-        data.yield
-          ? `${Number(data.yield).toFixed(2)}%`
-          : "-";
-
-
-      // 自動把股價帶入試算
-      if (data.price) {
-
-        manualPrice.value =
-          data.price;
-
-      }
-
-
-      stockInfo.style.display =
-        "block";
-
-
-      calculate();
-
-    }
-
-    catch (err) {
-
-      error.textContent =
-        "目前無法取得股票資料，請確認股票代號或 API 是否已建立。";
-
-      error.style.display =
-        "block";
-
-    }
-
-    finally {
-
-      loading.style.display =
-        "none";
-
-    }
+    // ⭐ 搜尋完成重新計算
+    calculate();
 
   }
 
+  catch (err) {
 
-  monthlyDividend.addEventListener(
-    "input",
-    calculate
+    error.textContent =
+      "⚠️ " +
+      err.message;
+
+    error.style.display =
+      "block";
+
+  }
+
+  finally {
+
+    loading.style.display =
+      "none";
+
+  }
+
+}
+
+
+// 按 Enter 也可以搜尋
+
+document
+  .getElementById("stockCode")
+  .addEventListener(
+    "keydown",
+    function(event) {
+
+      if (event.key === "Enter") {
+
+        searchStock();
+
+      }
+
+    }
   );
 
-  targetYield.addEventListener(
-    "input",
-    calculate
-  );
 
-  annualDividend.addEventListener(
-    "input",
-    calculate
-  );
+// 修改數字時立即重新計算
 
-  manualPrice.addEventListener(
-    "input",
-    calculate
-  );
+monthlyDividend.addEventListener(
+  "input",
+  calculate
+);
+
+targetYield.addEventListener(
+  "input",
+  calculate
+);
+
+annualDividend.addEventListener(
+  "input",
+  calculate
+);
+
+stockPrice.addEventListener(
+  "input",
+  calculate
+);
 
 
-  calculate();
+calculate();
 
 </script>
 
