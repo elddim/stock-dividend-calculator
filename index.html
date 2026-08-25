@@ -1,1 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>股息目標試算器</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", Arial, sans-serif;
+      background: linear-gradient(135deg, #eef9ff, #fff8e7);
+      color: #263746;
+      min-height: 100vh;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px 25px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 34px;
+      color: #24516b;
+    }
+
+    header p {
+      color: #738491;
+      margin-top: 10px;
+    }
+
+    .container {
+      width: min(1000px, 92%);
+      margin: auto;
+      padding-bottom: 60px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 22px;
+      padding: 26px;
+      margin-bottom: 22px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.07);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #315e75;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input {
+      padding: 13px;
+      border-radius: 12px;
+      border: 1px solid #d5e3ea;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #67a9c6;
+    }
+
+    button {
+      padding: 13px 20px;
+      border: none;
+      border-radius: 12px;
+      background: #397d9d;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2d6985;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .search-row input {
+      flex: 1;
+    }
+
+    .stock-info {
+      margin-top: 20px;
+      background: #f7fbfd;
+      border-radius: 15px;
+      padding: 20px;
+      display: none;
+    }
+
+    .stock-name {
+      font-size: 24px;
+      font-weight: bold;
+      color: #24516b;
+    }
+
+    .stock-code {
+      color: #84939c;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .result {
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+      background: #f2f9fc;
+    }
+
+    .result.main {
+      background: #fff4c8;
+    }
+
+    .result-title {
+      font-size: 13px;
+      color: #71828d;
+    }
+
+    .result-value {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 8px;
+      color: #24516b;
+    }
+
+    .main .result-value {
+      color: #9a6b00;
+    }
+
+    .detail {
+      margin-top: 20px;
+      border: 1px solid #e3ebef;
+      border-radius: 15px;
+      padding: 18px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 11px 0;
+      border-bottom: 1px dashed #dfe6ea;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-row strong {
+      color: #28566c;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .loading {
+      background: #edf7ff;
+      color: #39718f;
+    }
+
+    .error {
+      background: #fff0f0;
+      color: #a54c4c;
+    }
+
+    .notice {
+      background: #fff8e7;
+      border-left: 5px solid #eeb94f;
+      padding: 16px;
+      border-radius: 10px;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    footer {
+      text-align: center;
+      color: #96a5ad;
+      padding-top: 20px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 750px) {
+      .grid,
+      .results {
+        grid-template-columns: 1fr;
+      }
+
+      .search-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>💰 股息目標試算器</h1>
+  <p>搜尋台股，設定你的殖利率與股息目標</p>
+</header>
+
+<div class="container">
+
+  <!-- 股票搜尋 -->
+  <section class="card">
+
+    <h2>🔍 股票搜尋</h2>
+
+    <div class="search-row">
+      <input
+        id="stockCode"
+        type="text"
+        placeholder="輸入股票代號，例如 0050、2330"
+      />
+
+      <button onclick="searchStock()">
+        搜尋股票
+      </button>
+    </div>
+
+    <div id="loading" class="message loading">
+      正在取得股票資料...
+    </div>
+
+    <div id="error" class="message error"></div>
+
+    <div id="stockInfo" class="stock-info">
+
+      <div id="stockName" class="stock-name">
+        股票名稱
+      </div>
+
+      <div id="stockCodeText" class="stock-code"></div>
+
+      <div class="detail">
+
+        <div class="detail-row">
+          <span>市場</span>
+          <strong id="market">-</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>最近股價</span>
+          <strong id="price">-</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>官方殖利率</span>
+          <strong id="officialYield">-</strong>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- 目標設定 -->
+  <section class="card">
+
+    <h2>🎯 我的股息目標</h2>
+
+    <div class="grid">
+
+      <div class="input-group">
+        <label>每月希望領多少股息？</label>
+
+        <input
+          id="monthlyDividend"
+          type="number"
+          value="10000"
+          min="0"
+        />
+      </div>
+
+      <div class="input-group">
+        <label>我的目標殖利率 %</label>
+
+        <input
+          id="targetYield"
+          type="number"
+          value="5"
+          min="0.1"
+          step="0.1"
+        />
+      </div>
+
+    </div>
+
+    <div class="results">
+
+      <div class="result">
+        <div class="result-title">
+          每月股息
+        </div>
+
+        <div
+          id="monthlyResult"
+          class="result-value"
+        >
+          $10,000
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="result-title">
+          每年股息
+        </div>
+
+        <div
+          id="yearlyResult"
+          class="result-value"
+        >
+          $120,000
+        </div>
+      </div>
+
+      <div class="result main">
+        <div class="result-title">
+          預估需要本金
+        </div>
+
+        <div
+          id="capitalResult"
+          class="result-value"
+        >
+          $2,400,000
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- 單股試算 -->
+  <section class="card">
+
+    <h2>📊 股票配息試算</h2>
+
+    <div class="grid">
+
+      <div class="input-group">
+        <label>預估每股一年配息</label>
+
+        <input
+          id="annualDividend"
+          type="number"
+          value="3"
+          step="0.01"
+        />
+      </div>
+
+      <div class="input-group">
+        <label>股票價格</label>
+
+        <input
+          id="manualPrice"
+          type="number"
+          value="50"
+          step="0.01"
+        />
+      </div>
+
+    </div>
+
+
+    <div class="detail">
+
+      <div class="detail-row">
+        <span>依輸入資料計算殖利率</span>
+        <strong id="calculatedYield">6.00%</strong>
+      </div>
+
+      <div class="detail-row">
+        <span>目標殖利率對應理想股價</span>
+        <strong id="idealPrice">$60.00</strong>
+      </div>
+
+      <div class="detail-row">
+        <span>達成股息目標約需股數</span>
+        <strong id="sharesNeeded">40,000 股</strong>
+      </div>
+
+      <div class="detail-row">
+        <span>約需張數</span>
+        <strong id="lotsNeeded">40.00 張</strong>
+      </div>
+
+      <div class="detail-row">
+        <span>以目前價格估計投入金額</span>
+        <strong id="investmentNeeded">$2,000,000</strong>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="notice">
+
+    ⚠️ <strong>投資提醒：</strong>
+    本網站僅提供資料整理與試算，不構成投資建議。
+    股價、配息與殖利率皆可能變動，實際投資前仍需自行評估風險。
+
+  </section>
+
+
+  <footer>
+    股息目標試算器｜資料僅供參考
+  </footer>
+
+</div>
+
+
+<script>
+
+  const monthlyDividend =
+    document.getElementById("monthlyDividend");
+
+  const targetYield =
+    document.getElementById("targetYield");
+
+  const annualDividend =
+    document.getElementById("annualDividend");
+
+  const manualPrice =
+    document.getElementById("manualPrice");
+
+
+  function money(value) {
+
+    if (!isFinite(value)) {
+      return "$0";
+    }
+
+    return "$" +
+      Math.round(value).toLocaleString("zh-TW");
+
+  }
+
+
+  function calculate() {
+
+    const monthly =
+      Number(monthlyDividend.value) || 0;
+
+    const target =
+      Number(targetYield.value) || 0;
+
+    const dividend =
+      Number(annualDividend.value) || 0;
+
+    const price =
+      Number(manualPrice.value) || 0;
+
+
+    const yearly =
+      monthly * 12;
+
+
+    let capital = 0;
+
+    if (target > 0) {
+
+      capital =
+        yearly /
+        (target / 100);
+
+    }
+
+
+    document.getElementById(
+      "monthlyResult"
+    ).textContent =
+      money(monthly);
+
+
+    document.getElementById(
+      "yearlyResult"
+    ).textContent =
+      money(yearly);
+
+
+    document.getElementById(
+      "capitalResult"
+    ).textContent =
+      money(capital);
+
+
+    // 實際殖利率
+    let calculatedYield = 0;
+
+    if (price > 0) {
+
+      calculatedYield =
+        dividend /
+        price *
+        100;
+
+    }
+
+
+    document.getElementById(
+      "calculatedYield"
+    ).textContent =
+      calculatedYield.toFixed(2) + "%";
+
+
+    // 理想股價
+    let idealPrice = 0;
+
+    if (target > 0) {
+
+      idealPrice =
+        dividend /
+        (target / 100);
+
+    }
+
+
+    document.getElementById(
+      "idealPrice"
+    ).textContent =
+      "$" +
+      idealPrice.toFixed(2);
+
+
+    // 所需股數
+    let shares = 0;
+
+    if (dividend > 0) {
+
+      shares =
+        yearly /
+        dividend;
+
+    }
+
+
+    document.getElementById(
+      "sharesNeeded"
+    ).textContent =
+      Math.ceil(shares)
+        .toLocaleString("zh-TW") +
+      " 股";
+
+
+    document.getElementById(
+      "lotsNeeded"
+    ).textContent =
+      (shares / 1000)
+        .toFixed(2) +
+      " 張";
+
+
+    const investment =
+      shares *
+      price;
+
+
+    document.getElementById(
+      "investmentNeeded"
+    ).textContent =
+      money(investment);
+
+  }
+
+
+  async function searchStock() {
+
+    const code =
+      document
+        .getElementById("stockCode")
+        .value
+        .trim();
+
+
+    const loading =
+      document.getElementById("loading");
+
+    const error =
+      document.getElementById("error");
+
+    const stockInfo =
+      document.getElementById("stockInfo");
+
+
+    error.style.display = "none";
+    stockInfo.style.display = "none";
+
+
+    if (!code) {
+
+      error.textContent =
+        "請先輸入股票代號";
+
+      error.style.display =
+        "block";
+
+      return;
+
+    }
+
+
+    loading.style.display =
+      "block";
+
+
+    try {
+
+      const response =
+        await fetch(
+          `/api/stock?code=${encodeURIComponent(code)}`
+        );
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          "查不到這檔股票"
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      document.getElementById(
+        "stockName"
+      ).textContent =
+        data.name || "未知股票";
+
+
+      document.getElementById(
+        "stockCodeText"
+      ).textContent =
+        `${data.code || code}`;
+
+
+      document.getElementById(
+        "market"
+      ).textContent =
+        data.market || "-";
+
+
+      document.getElementById(
+        "price"
+      ).textContent =
+        data.price
+          ? `$${Number(data.price).toFixed(2)}`
+          : "-";
+
+
+      document.getElementById(
+        "officialYield"
+      ).textContent =
+        data.yield
+          ? `${Number(data.yield).toFixed(2)}%`
+          : "-";
+
+
+      // 自動把股價帶入試算
+      if (data.price) {
+
+        manualPrice.value =
+          data.price;
+
+      }
+
+
+      stockInfo.style.display =
+        "block";
+
+
+      calculate();
+
+    }
+
+    catch (err) {
+
+      error.textContent =
+        "目前無法取得股票資料，請確認股票代號或 API 是否已建立。";
+
+      error.style.display =
+        "block";
+
+    }
+
+    finally {
+
+      loading.style.display =
+        "none";
+
+    }
+
+  }
+
+
+  monthlyDividend.addEventListener(
+    "input",
+    calculate
+  );
+
+  targetYield.addEventListener(
+    "input",
+    calculate
+  );
+
+  annualDividend.addEventListener(
+    "input",
+    calculate
+  );
+
+  manualPrice.addEventListener(
+    "input",
+    calculate
+  );
+
+
+  calculate();
+
+</script>
+
+</body>
+</html>
